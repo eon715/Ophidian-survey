@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ophiuchus Probe v2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial; background: #0e0e0e; color: #e0e0e0; margin: 0; }
+        h2 { background: #111; margin: 0; padding: 10px; }
+        #map { height: 40vh; }
+        #log { height: 20vh; overflow-y: auto; background: #1a1a1a; padding: 8px; font-size: 13px; }
+        #controls { padding: 8px; background: #111; }
+        button { background: #222; color: #e0e0e0; border: 1px solid #555; padding: 8px; margin: 3px; }
+        #sigil { height: 20vh; display: flex; align-items: center; justify-content: center; background: #111; }
+        canvas { background: #000; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <h2>🜏 Ophiuchus Probe v2</h2>
+    <div id="map"></div>
+    <div id="log"></div>
+    <div id="controls">
+        <button onclick="toggleProbe()">Start / Stop Probe</button>
+        <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+        <button onclick="exportLog()">Export Log</button>
+    </div>
+    <div id="sigil"><canvas id="sigilCanvas" width="200" height="200"></canvas></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script>
+        let probeActive = false;
+        let anomalies = JSON.parse(localStorage.getItem('anomalies')) || [];
+        let heatmapLayer = null;
+        let map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+        let logDiv = document.getElementById('log');
+        let randomHistory = [];
+        let windowSize = 50;
+        let zThreshold = 3.5;
+        let sigilCanvas = document.getElementById('sigilCanvas');
+        let ctx = sigilCanvas.getContext('2d');
+
+        function notify(msg) {
+            if (Notification.permission === 'granted') {
+                new Notification(msg);
+            }
+        }
+
+        function logEvent(msg, anomaly=false) {
+            let entry = document.createElement('div');
+            entry.style.color = anomaly ? '#ff4444' : '#ccc';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logDiv.prepend(entry);
+        }
+
+        async function getLocation() {
+            return new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }), reject);
+            });
+        }
+
+        function getRandomNumber() {
+            let arr = new Uint32Array(1);
+            window.crypto.getRandomValues(arr);
+            return arr[0] / 2**32;
+        }
+
+        function detectAnomaly(value) {
+            randomHistory.push(value);
+            if (randomHistory.length > windowSize) randomHistory.shift();
+            if (randomHistory.length === windowSize) {
+                let mean = randomHistory.reduce((a,b)=>a+b,0)/windowSize;
+                let std = Math.sqrt(randomHistory.reduce((a,b)=>a+(b-mean)**2,0)/windowSize);
+                let z = (value-mean)/std;
+                return Math.abs(z)>zThreshold ? z : null;
+            }
+            return null;
+        }
+
+        function drawSigil(seed) {
+            ctx.clearRect(0,0,sigilCanvas.width,sigilCanvas.height);
+            ctx.strokeStyle = '#ff4444';
+            ctx.beginPath();
+            let x = sigilCanvas.width/2, y=sigilCanvas.height/2;
+            ctx.moveTo(x,y);
+            for (let i=0;i<12;i++) {
+                let angle = (seed*(i+1)*Math.PI*2)%(Math.PI*2);
+                let r=40+(seed*100%60);
+                ctx.lineTo(x+r*Math.cos(angle), y+r*Math.sin(angle));
+            }
+            ctx.closePath(); ctx.stroke();
+        }
+
+        async function runProbe() {
+            while (probeActive) {
+                let value=getRandomNumber();
+                let anomaly=detectAnomaly(value);
+                let loc=await getLocation();
+                if(anomaly){
+                    logEvent(`Anomaly! Z:${anomaly.toFixed(2)} GPS:${loc.lat.toFixed(4)},${loc.lon.toFixed(4)}`,true);
+                    anomalies.push({time:new Date().toISOString(), lat:loc.lat, lon:loc.lon, z:anomaly});
+                    localStorage.setItem('anomalies', JSON.stringify(anomalies));
+                    L.circleMarker([loc.lat,loc.lon],{color:'red',radius:5}).addTo(map);
+                    drawSigil((value+loc.lat+loc.lon)%1);
+                    notify('Ophiuchus bleed detected');
+                }
+                await new Promise(r=>setTimeout(r,1500));
+            }
+        }
+
+        function toggleProbe(){
+            probeActive=!probeActive;
+            if(probeActive){ logEvent('Probe activated. Listening...'); runProbe();}
+            else{ logEvent('Probe halted.');}
+        }
+
+        function toggleHeatmap() {
+            if (heatmapLayer) { map.removeLayer(heatmapLayer); heatmapLayer=null; }
+            else {
+                let pts=anomalies.map(a=>[a.lat,a.lon,0.5]);
+                heatmapLayer=L.heatLayer(pts,{radius:25}).addTo(map);
+            }
+        }
+
+        function exportLog() {
+            let csv="Time,Latitude,Longitude,Z-Score\n";
+            anomalies.forEach(a=>csv+=`${a.time},${a.lat},${a.lon},${a.z}\n`);
+            let blob=new Blob([csv],{type:'text/csv'});
+            let url=URL.createObjectURL(blob);
+            let a=document.createElement('a');
+            a.href=url;a.download="ophiuchus_anomalies.csv";a.click();
+        }
+
+        if (Notification.permission!=='granted'){ Notification.requestPermission();}
+    </script>
+</body>
+</html>
