@@ -1,9 +1,20 @@
 {
   "name": "Ophiuchus Probe v2",
   "short_name": "Ophiuchus Probe",
+  "id": "ophiuchus-probe",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0e0e0e",
-  "description": "A techno-occult anomaly probe to detect probability bleeds.",
-  "icons": []
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
 }
