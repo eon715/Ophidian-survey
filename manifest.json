@@ -2,42 +2,47 @@
   "name": "Ophiuchus Probe",
   "short_name": "Ophiuchus Probe",
   "description": "A geomantic probe app designed to detect liminal anomalies and probability ruptures linked to the Ophiuchus current.",
-  "id": "ophiuchus-probe",
-  "lang": "en",
-  "dir": "ltr",
   "start_url": "/Ophidian-survey/",
   "scope": "/Ophidian-survey/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "productivity", "lifestyle"],
+
   "icons": [
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "screenshots": [
+      "purpose": "any maskable"
+    },
     {
-      "src": "screenshot1.png",
-      "sizes": "1280x720",
+      "src": "icon-192.png",
+      "sizes": "192x192",
       "type": "image/png"
     }
   ],
-  "categories": ["utilities", "productivity"],
-  "prefer_related_applications": false,
-  "related_applications": [],
-  "scope_extensions": [
+
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+
+  "shortcuts": [
     {
-      "origin": "/Ophidian-survey/"
+      "name": "Start Probe",
+      "url": "/Ophidian-survey/?start",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ],
+
+  "prefer_related_applications": false,
+  "related_applications": [],
+
   "iarc_rating_id": "pending",
-  "launch_handler": {
-    "client_mode": "auto"
-  },
+
   "share_target": {
     "action": "/share",
     "method": "POST",
