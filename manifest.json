@@ -1,0 +1,9 @@
+{
+  "name": "Ophiuchus Probe v2",
+  "short_name": "Ophiuchus Probe",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0e0e0e",
+  "description": "A techno-occult anomaly probe to detect probability bleeds.",
+  "icons": []
+}
