@@ -1,13 +1,16 @@
 {
-  "name": "Ophiuchus Probe v2",
+  "name": "Ophiuchus Probe",
   "short_name": "Ophiuchus Probe",
-  "id": "ophiuchus-probe",
   "description": "A geomantic probe app designed to detect liminal anomalies and probability ruptures linked to the Ophiuchus current.",
-  "start_url": ".",
+  "id": "ophiuchus-probe",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/Ophidian-survey/",
+  "scope": "/Ophidian-survey/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-512.png",
@@ -19,11 +22,17 @@
   "screenshots": [
     {
       "src": "screenshot1.png",
-      "sizes": "1080x1920",
+      "sizes": "1280x720",
       "type": "image/png"
     }
   ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  }
+  "categories": ["utilities", "productivity"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope_extensions": [
+    {
+      "origin": "/Ophidian-survey/"
+    }
+  ],
+  "iarc_rating_id": "pending"
 }
