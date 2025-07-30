@@ -11,7 +11,6 @@
   "theme_color": "#000000",
   "lang": "en",
   "dir": "ltr",
-
   "icons": [
     {
       "src": "icon-512-any.png",
@@ -31,7 +30,6 @@
       "type": "image/png"
     }
   ],
-
   "screenshots": [
     {
       "src": "screenshot1.png",
@@ -39,13 +37,22 @@
       "sizes": "1080x2400"
     }
   ],
-
   "scope_extensions": [
-    { "origin": "https://eon715.github.io" }
+    {
+      "origin": "https://eon715.github.io"
+    }
   ],
-
-  "launch_handler": { "client_mode": "focus-existing" },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "prefer_related_applications": false,
   "related_applications": [],
-  "iarc_rating_id": "pending"
+  "iarc_rating_id": "pending",
+  "categories": ["utilities", "productivity"],
+  "protocol_handlers": [
+    {
+      "protocol": "web+ophiuchus",
+      "url": "/Ophidian-survey/?q=%s"
+    }
+  ]
 }
