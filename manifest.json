@@ -34,5 +34,18 @@
       "origin": "/Ophidian-survey/"
     }
   ],
-  "iarc_rating_id": "pending"
+  "iarc_rating_id": "pending",
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
